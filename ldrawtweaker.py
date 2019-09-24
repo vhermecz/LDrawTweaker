@@ -138,12 +138,13 @@ class StatReaderProcessor(DatFileProcessor):
     def __init__(self, fname):
         super(StatReaderProcessor, self).__init__(fname)
         self.limits = [
-            [sys.maxint, -sys.maxint-1],
-            [sys.maxint, -sys.maxint-1],
-            [sys.maxint, -sys.maxint-1],
+            [sys.maxsize, -sys.maxsize-1],
+            [sys.maxsize, -sys.maxsize-1],
+            [sys.maxsize, -sys.maxsize-1],
         ]
 
     def process_shape(self, linetpye, color, coordinates):
+        coordinates = list(coordinates)
         for i in range(3):
             for coordinate in coordinates[i:len(coordinates):3]:
                 self.limits[i][0] = min(coordinate, self.limits[i][0])
@@ -176,7 +177,9 @@ class TransformProcessor(DatFileProcessor):
     def process_shape(self, linetype, color, coordinates):
         line = "{0} {1}".format(linetype, color)
         points = []
-        for i in range(len(coordinates)/3):
+        coordinates = list(coordinates)
+
+        for i in range(int(len(coordinates)/3)):
             point = coordinates[i*3:i*3+3]
             if self.args.flip:
                 point = self.doflip(point, self.args.flip, self.limits)
@@ -201,10 +204,10 @@ class TransformProcessor(DatFileProcessor):
 
 def main():
     args = get_parser().parse_args()
-    print args
+    print(args)
     counter, limits = StatReaderProcessor(args.input).process()
-    print "Linetype counts: ", dict(counter)
-    print "Axis limits: ", limits
+    print("Linetype counts: ", dict(counter))
+    print("Axis limits: ", limits)
     if args.out:
         TransformProcessor(args.input, limits, args).process()
 
